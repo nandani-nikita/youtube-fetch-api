@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// defining data-save schema
 var videoSchema = new mongoose.Schema({
     videoId: { type: String },
     videoTitle: { type: String, index: true },
@@ -10,7 +11,8 @@ var videoSchema = new mongoose.Schema({
     channelTitle: { type: String }
 }, { collection: 'youtubeVideos' });
 
-// mongoose.model('Videos', videoSchema);
+
+// creating title and description of video as indexes for faster search
 videoSchema.index({ title: 'text', description: 'text', tags: 'text' });
 const Vdo = mongoose.model('Videos', videoSchema);
 Vdo.createIndexes();

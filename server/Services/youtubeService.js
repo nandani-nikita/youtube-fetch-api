@@ -1,3 +1,5 @@
+// fetch data from youtube api
+
 var { google } = require('googleapis');
 const dotenv =require("dotenv");
 dotenv.config({path:'./.env'});
@@ -10,11 +12,11 @@ async function videoMining() {
     try {
         const response = await youtube.search.list({
             part: 'snippet',
-            q: 'how to make tea',
-            order: "date",
+            q: 'how to make tea',       // search query
+            order: "date",              // order by date - latest first
             type: "video",
             publishedAfter: "2022-07-22T01:59:53Z",
-            maxResults: 5
+            maxResults: 20              // max results per page
         });
 
         return response.data.items;

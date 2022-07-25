@@ -1,7 +1,10 @@
+// dbService -  to handle the database operations
+
 const mongoose = require('mongoose');
 
 const VideoSch = mongoose.model('Videos');
 
+// insert/store fetched data into db
 const insertService = async (data) => {
     try {
         const checkExistingVideo = await findOneService(data.id.videoId);
@@ -33,11 +36,10 @@ const insertService = async (data) => {
     }
 };
 
+// find one video by id from db
 const findOneService = async (videoId) => {
     try {
-
         const findAVideo = await VideoSch.findOne({ videoId: videoId });
-        // console.log(resp);
         if (findAVideo) {
             return true;
         } else {
@@ -52,7 +54,7 @@ const findOneService = async (videoId) => {
     }
 };
 
-
+// find all videos that are stored in db
 const findAllService = async (page, limit) => {
     try {
         const skipIndex = (page - 1) * limit;
@@ -62,7 +64,14 @@ const findAllService = async (page, limit) => {
             .skip(skipIndex)
             .exec();
 
-        return paginatedResult;
+        const totalCount = await countData();
+        return {
+            data: paginatedResult,
+            page: page ? page : 1,
+            pageSize: limit ? limit : totalCount,
+            count: limit ? limit : totalCount,
+            totalCount: totalCount
+        };
 
     } catch (error) {
         console.log(error);
@@ -73,7 +82,7 @@ const findAllService = async (page, limit) => {
     }
 };
 
-
+// find videos with matching title or description from db
 const findByNameService = async (searchString, page, limit) => {
     try {
         const skipIndex = (page - 1) * limit;
@@ -88,13 +97,40 @@ const findByNameService = async (searchString, page, limit) => {
             .skip(skipIndex)
             .exec();
 
-        return paginatedResult;
+        const totalCount = await VideoSch.count({
+            $or: [
+                { "videoTitle": { $regex: new RegExp(searchString, "i") } },
+                { "videoDescription": { $regex: new RegExp(searchString, "i") } },
+            ]
+        });
+        return {
+            data: paginatedResult,
+            page: page ? page : 1,
+            pageSize: limit ? limit : totalCount,
+            count: paginatedResult ? paginatedResult.length : totalCount,
+            totalCount: totalCount
+        };
 
     } catch (error) {
         console.log(error);
         return {
             status: "failure",
             msg: `error occured while finding videos : ${error}`
+        }
+    }
+};
+
+// get count of number of records in the db
+const countData = async () => {
+    try {
+        const totalCount = await VideoSch.count();
+        return totalCount;
+
+    } catch (error) {
+        console.log(error);
+        return {
+            status: "failure",
+            msg: `error occured while counting videos : ${error}`
         }
     }
 };
