@@ -95,4 +95,7 @@ Repo Components: Client, Server
     ```
     docker build "./" -t "<docker-image-name>"
     ```
-4. Run the image from docker container
+4. Run the image from docker container or execute the following command in command prompt
+   ```
+   docker run -p 8080:8080 youtubeapi
+   ```
